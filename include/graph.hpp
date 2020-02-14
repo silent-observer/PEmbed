@@ -5,10 +5,15 @@
 
 const double NODE_RADIUS = 5;
 
+struct Edge {
+    int id;
+    bool isFirst;
+};
+
 struct Node {
     double x;
     double y;
-    std::vector<int> edges;
+    std::vector<Edge> edges;
 
     Node(double x, double y) : x(x), y(y) {}
     Node() : x(0), y(0) {}

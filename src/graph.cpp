@@ -15,9 +15,9 @@ void Graph::addNode(double x, double y) {
 void Graph::removeNode(int id) {
     if (!nodes.count(id)) 
         return;
-    std::vector<int>& edges = nodes[id].edges;
+    std::vector<Edge>& edges = nodes[id].edges;
     for (int i = 0; i < edges.size(); i++) {
-        std::vector<int>& other = nodes[edges[i]].edges;
+        std::vector<Edge>& other = nodes[edges[i].id].edges;
         other.erase(other.begin() + id);
     }
     nodes.erase(id);
@@ -26,37 +26,37 @@ void Graph::addEdge(int id1, int id2) {
     if (!nodes.count(id1) || !nodes.count(id2)) 
         return;
 
-    std::vector<int>& edges1 = nodes[id1].edges;
-    std::vector<int>& edges2 = nodes[id2].edges;
+    std::vector<Edge>& edges1 = nodes[id1].edges;
+    std::vector<Edge>& edges2 = nodes[id2].edges;
 
     int size1 = edges1.size();
     int size2 = edges2.size();
     for (int i = 0; i < size1; i++) {
-        if (edges1[i] == id2) return;
+        if (edges1[i].id == id2) return;
     }
     for (int i = 0; i < size2; i++) {
-        if (edges2[i] == id1) return;
+        if (edges2[i].id == id1) return;
     }
-    edges1.push_back(id2);
-    edges2.push_back(id1);
+    edges1.push_back({id2, true});
+    edges2.push_back({id1, false});
 }
 void Graph::removeEdge(int id1, int id2) {
     if (!nodes.count(id1) || !nodes.count(id2)) 
         return;
 
-    std::vector<int>& edges1 = nodes[id1].edges;
-    std::vector<int>& edges2 = nodes[id2].edges;
+    std::vector<Edge>& edges1 = nodes[id1].edges;
+    std::vector<Edge>& edges2 = nodes[id2].edges;
 
     int size1 = edges1.size();
     int size2 = edges2.size();
     for (int i = 0; i < size1; i++) {
-        if (edges1[i] == id2) {
+        if (edges1[i].id == id2) {
             edges1.erase(edges1.begin() + i);
             break;
         }
     }
     for (int i = 0; i < size2; i++) {
-        if (edges2[i] == id1) {
+        if (edges2[i].id == id1) {
             edges2.erase(edges2.begin() + i);
             break;
         }
