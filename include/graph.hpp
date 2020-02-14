@@ -14,9 +14,9 @@ struct Node {
 };
 
 class Graph {
-private:
-    std::map<int, Node> nodes;
 public:
+    std::map<int, Node> nodes;
+
     void addNode(double x, double y);
     void removeNode(int id);
     void addEdge(int id1, int id2);
@@ -24,5 +24,4 @@ public:
     void moveNode(int id, double x, double y);
 
     int findNode(double x, double y);
-    Node& getNode(int id);
 };

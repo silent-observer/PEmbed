@@ -81,6 +81,3 @@ int Graph::findNode(double x, double y) {
     }
     return 0;
 }
-Node& Graph::getNode(int id) {
-    return nodes[id];
-}
