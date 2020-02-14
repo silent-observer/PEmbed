@@ -6,9 +6,10 @@
 class Gui {
 private:
     Graph graph;
+    int grabbedNode;
 public:
-
     Gui();
     void draw(sf::RenderWindow& window);
-    void handleClick(int x, int y);
+    void handleMouseEvent(sf::Event event);
+    void update(sf::RenderWindow& window);
 };

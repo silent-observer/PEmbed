@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-Gui::Gui() {
+Gui::Gui() : grabbedNode(0) {
     graph.addNode(100, 100);
     graph.addNode(200, 100);
     graph.addNode(100, 200);
@@ -26,12 +26,14 @@ static void drawEdge(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f 
     sf::Vector2f realStart = start + (float)(NODE_RADIUS + EDGE_OFFSET) * dir;
     float realLen = len - 2 * (NODE_RADIUS + EDGE_OFFSET);
     
-    sf::RectangleShape edge(sf::Vector2f(realLen, EDGE_WIDTH));
-    edge.setFillColor(sf::Color::Black);
-    edge.setPosition(realStart);
-    float angle = atan2(dist.y, dist.x) * 180/PI;
-    edge.setRotation(angle);
-    window.draw(edge);
+    if (realLen > 0) {
+        sf::RectangleShape edge(sf::Vector2f(realLen, EDGE_WIDTH));
+        edge.setFillColor(sf::Color::Black);
+        edge.setPosition(realStart);
+        float angle = atan2(dist.y, dist.x) * 180/PI;
+        edge.setRotation(angle);
+        window.draw(edge);
+    }
 }
 
 void Gui::draw(sf::RenderWindow& window) {
@@ -50,5 +52,25 @@ void Gui::draw(sf::RenderWindow& window) {
         }
         nodeShape.setPosition(nodePos);
         window.draw(nodeShape);
+    }
+}
+
+void Gui::handleMouseEvent(sf::Event event) {
+    if (event.type == sf::Event::MouseButtonPressed && 
+            event.mouseButton.button == sf::Mouse::Left) {
+        int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
+        if (id) {
+            grabbedNode = id;
+        };
+    } else if (event.type == sf::Event::MouseButtonReleased &&
+            event.mouseButton.button == sf::Mouse::Left) {
+        grabbedNode = 0;
+    }
+}
+
+void Gui::update(sf::RenderWindow& window) {
+    if (grabbedNode) {
+        sf::Vector2i pos = sf::Mouse::getPosition(window);
+        graph.moveNode(grabbedNode, pos.x, pos.y);
     }
 }
