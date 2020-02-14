@@ -38,7 +38,7 @@ void Graph::addEdge(int id1, int id2) {
         if (edges2[i] == id1) return;
     }
     edges1.push_back(id2);
-    edges1.push_back(id1);
+    edges2.push_back(id1);
 }
 void Graph::removeEdge(int id1, int id2) {
     if (!nodes.count(id1) || !nodes.count(id2)) 
