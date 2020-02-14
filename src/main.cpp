@@ -1,7 +1,11 @@
 #include <SFML/Graphics.hpp>
+#include "gui.hpp"
+#include <iostream>
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "PEmbed");
+
+    Gui gui;
 
     while(window.isOpen()) {
         sf::Event event;
@@ -11,7 +15,8 @@ int main() {
                 window.close();
         }
 
-        window.clear();
+        window.clear(sf::Color::White);
+        gui.draw(window);
         window.display();
     }
 }
