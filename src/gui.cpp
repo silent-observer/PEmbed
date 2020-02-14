@@ -19,20 +19,12 @@ static void drawEdge(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f 
     const float EDGE_WIDTH = 2;
     const double PI = 3.1415926;
 
-    std::cout << "EDGE: " << std::endl;
-    std::cout << start.x << ", " << start.y << std::endl;
-    std::cout << end.x << ", " << end.y << std::endl;
-
     sf::Vector2f dist = end - start;
-    std::cout << "D: " << dist.x << ", " << dist.y << std::endl;
     float len = sqrt(dist.x * dist.x + dist.y * dist.y);
     sf::Vector2f dir = dist / len;
-    std::cout << "Len: " << len << std::endl;
-    std::cout << "Dir: " << dir.x << ", " << dir.y << std::endl;
     
     sf::Vector2f realStart = start + (float)(NODE_RADIUS + EDGE_OFFSET) * dir;
     float realLen = len - 2 * (NODE_RADIUS + EDGE_OFFSET);
-    std::cout << "Real Len: " << realLen << std::endl;
     
     sf::RectangleShape edge(sf::Vector2f(realLen, EDGE_WIDTH));
     edge.setFillColor(sf::Color::Black);
@@ -43,7 +35,6 @@ static void drawEdge(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f 
 }
 
 void Gui::draw(sf::RenderWindow& window) {
-    std::cout << "TEST" << std::endl;
     sf::CircleShape nodeShape(NODE_RADIUS);
     nodeShape.setFillColor(sf::Color::Black);
     nodeShape.setOrigin(NODE_RADIUS, NODE_RADIUS);
