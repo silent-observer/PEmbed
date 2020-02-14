@@ -11,6 +11,7 @@ struct Node {
     std::vector<int> edges;
 
     Node(double x, double y) : x(x), y(y) {}
+    Node() : x(0), y(0) {}
 };
 
 class Graph {
