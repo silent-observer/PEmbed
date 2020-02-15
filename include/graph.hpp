@@ -1,19 +1,17 @@
 #pragma once
 
-#include <vector>
+#include <list>
 #include <map>
 
 const double NODE_RADIUS = 5;
 
 struct Edge {
-    int id;
-    bool isFirst;
+    int id1, id2;
 };
 
 struct Node {
     double x;
     double y;
-    std::vector<Edge> edges;
 
     Node(double x, double y) : x(x), y(y) {}
     Node() : x(0), y(0) {}
@@ -22,6 +20,7 @@ struct Node {
 class Graph {
 public:
     std::map<int, Node> nodes;
+    std::list<Edge> edges;
 
     void addNode(double x, double y);
     void removeNode(int id);

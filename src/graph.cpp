@@ -15,10 +15,14 @@ void Graph::addNode(double x, double y) {
 void Graph::removeNode(int id) {
     if (!nodes.count(id)) 
         return;
-    std::vector<Edge>& edges = nodes[id].edges;
-    for (int i = 0; i < edges.size(); i++) {
-        std::vector<Edge>& other = nodes[edges[i].id].edges;
-        other.erase(other.begin() + id);
+
+    auto i = edges.begin();
+    while (i != edges.end())
+    {
+        if (i->id1 == id || i->id2 == id)
+            i = edges.erase(i);
+        else
+            i++;
     }
     nodes.erase(id);
 };
@@ -26,41 +30,21 @@ void Graph::addEdge(int id1, int id2) {
     if (!nodes.count(id1) || !nodes.count(id2)) 
         return;
 
-    std::vector<Edge>& edges1 = nodes[id1].edges;
-    std::vector<Edge>& edges2 = nodes[id2].edges;
-
-    int size1 = edges1.size();
-    int size2 = edges2.size();
-    for (int i = 0; i < size1; i++) {
-        if (edges1[i].id == id2) return;
-    }
-    for (int i = 0; i < size2; i++) {
-        if (edges2[i].id == id1) return;
-    }
-    edges1.push_back({id2, true});
-    edges2.push_back({id1, false});
+    
+    for (auto i = edges.begin(); i != edges.end(); i++)
+        if (i->id1 == id1 && i->id2 == id2)
+            return;
+    edges.push_back({id1, id2});
 }
 void Graph::removeEdge(int id1, int id2) {
     if (!nodes.count(id1) || !nodes.count(id2)) 
         return;
 
-    std::vector<Edge>& edges1 = nodes[id1].edges;
-    std::vector<Edge>& edges2 = nodes[id2].edges;
-
-    int size1 = edges1.size();
-    int size2 = edges2.size();
-    for (int i = 0; i < size1; i++) {
-        if (edges1[i].id == id2) {
-            edges1.erase(edges1.begin() + i);
-            break;
+    for (auto i = edges.begin(); i != edges.end(); i++)
+        if (i->id1 == id1 && i->id2 == id2) {
+            edges.erase(i);
+            return;
         }
-    }
-    for (int i = 0; i < size2; i++) {
-        if (edges2[i].id == id1) {
-            edges2.erase(edges2.begin() + i);
-            break;
-        }
-    }
 }
 void Graph::moveNode(int id, double x, double y) {
     if (!nodes.count(id)) 

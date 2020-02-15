@@ -55,15 +55,18 @@ static void drawGraph(sf::RenderWindow& window, Graph& graph) {
 
     for (auto n = graph.nodes.begin(); n != graph.nodes.end(); n++) {
         sf::Vector2f nodePos(n->second.x, n->second.y);
-        for (auto e = n->second.edges.begin(); e != n->second.edges.end(); e++) {
-            if (!e->isFirst) continue;
-            double x1 = graph.nodes[e->id].x;
-            double y1 = graph.nodes[e->id].y;
-            sf::Vector2f endPos(x1, y1);
-            drawEdge(window, nodePos, endPos);
-        }
         nodeShape.setPosition(nodePos);
         window.draw(nodeShape);
+    }
+
+    for (auto e = graph.edges.begin(); e != graph.edges.end(); e++) {
+        double x1 = graph.nodes[e->id1].x;
+        double y1 = graph.nodes[e->id1].y;
+        double x2 = graph.nodes[e->id2].x;
+        double y2 = graph.nodes[e->id2].y;
+        sf::Vector2f startPos(x1, y1);
+        sf::Vector2f endPos(x2, y2);
+        drawEdge(window, startPos, endPos);
     }
 }
 const float BUTTON_SIZE = 30;
@@ -112,13 +115,34 @@ void Gui::draw(sf::RenderWindow& window) {
 void Gui::handleMouseEvent(sf::Event event) {
     if (event.type == sf::Event::MouseButtonPressed && 
             event.mouseButton.button == sf::Mouse::Left) {
-        int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
-        if (id) {
-            grabbedNode = id;
-        };
+        if (buttonsRect.contains(event.mouseButton.x, event.mouseButton.y)) {
+            double x = (event.mouseButton.x - BUTTON_OFFSET)/BUTTON_SIZE;
+            int i = round(x);
+            currentTool = (Tool)i;
+        }
+        else switch(currentTool) {
+            case Tool::Pan: {
+                int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
+                if (id) {
+                    grabbedNode = id;
+                }
+                break;
+            }
+            case Tool::AddNode:
+                graph.addNode(event.mouseButton.x, event.mouseButton.y);
+                break;
+            case Tool::RemoveNodeOrEdge: {
+                int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
+                if (id) {
+                    graph.removeNode(id);
+                }
+                break;
+            }
+        }
     } else if (event.type == sf::Event::MouseButtonReleased &&
             event.mouseButton.button == sf::Mouse::Left) {
-        grabbedNode = 0;
+        if (currentTool == Tool::Pan)
+            grabbedNode = 0;
     }
 }
 
