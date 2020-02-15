@@ -14,7 +14,7 @@ TextureBank::TextureBank() {
     }
 }
 
-Gui::Gui() : grabbedNode(0), currentTool(Tool::Pan) {
+Gui::Gui() : grabbedNode(0), currentTool(Tool::Pan), edgeStartNode(0) {
     graph.addNode(100, 100);
     graph.addNode(200, 100);
     graph.addNode(100, 200);
@@ -109,6 +109,12 @@ const sf::IntRect buttonsRect(BUTTON_OFFSET - 0.5*BUTTON_SIZE,
 void Gui::draw(sf::RenderWindow& window) {
     drawGraph(window, graph);
     drawButtons(window, textures, currentTool);
+    if (edgeStartNode) {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        sf::Vector2f edgePos(graph.nodes[edgeStartNode].x, graph.nodes[edgeStartNode].y);
+        sf::Vector2f mousePosFloat(mousePos.x, mousePos.y);
+        drawEdge(window, mousePosFloat, edgePos);
+    }
 }
 
 
@@ -119,6 +125,7 @@ void Gui::handleMouseEvent(sf::Event event) {
             double x = (event.mouseButton.x - BUTTON_OFFSET)/BUTTON_SIZE;
             int i = round(x);
             currentTool = (Tool)i;
+            edgeStartNode = 0;
         }
         else switch(currentTool) {
             case Tool::Pan: {
@@ -139,6 +146,20 @@ void Gui::handleMouseEvent(sf::Event event) {
                     Edge e = graph.findEdge(event.mouseButton.x, event.mouseButton.y);
                     if (e.id1)
                         graph.removeEdge(e.id1, e.id2);
+                }
+                break;
+            }
+            case Tool::AddEdge: {
+                int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
+                if (id) {
+                    if (edgeStartNode == 0)
+                        edgeStartNode = id;
+                    else {
+                        if (edgeStartNode != id) {
+                            graph.addEdge(id, edgeStartNode);
+                        }
+                        edgeStartNode = 0;
+                    }
                 }
                 break;
             }

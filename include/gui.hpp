@@ -24,6 +24,7 @@ private:
     int grabbedNode;
     TextureBank textures;
     Tool currentTool;
+    int edgeStartNode;
 public:
     Gui();
     void draw(sf::RenderWindow& window);
