@@ -4,6 +4,7 @@
 #include <map>
 
 const double NODE_RADIUS = 5;
+const double EDGE_TOLERANCE = 2;
 
 struct Edge {
     int id1, id2;
@@ -29,4 +30,5 @@ public:
     void moveNode(int id, double x, double y);
 
     int findNode(double x, double y);
+    Edge findEdge(double x, double y);
 };
