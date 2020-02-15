@@ -4,6 +4,7 @@
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "PEmbed");
+    window.setFramerateLimit(60);
 
     Gui gui;
 
