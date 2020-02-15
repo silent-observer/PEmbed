@@ -1,6 +1,18 @@
 #include "gui.hpp"
 #include <cmath>
 #include <iostream>
+#include <windows.h>
+
+TextureBank::TextureBank() {
+    bool b1 = hand.loadFromFile("resources/hand.png");
+    bool b2 = plus.loadFromFile("resources/plus.png");
+    bool b3 = minus.loadFromFile("resources/minus.png");
+    bool b4 = draw.loadFromFile("resources/draw.png");
+    if (!b1 || !b2 || !b3 || !b4) {
+        MessageBoxA(NULL, "Couldn't load resources!", "Error", MB_ICONERROR | MB_OK);
+        exit(1);
+    }
+}
 
 Gui::Gui() : grabbedNode(0) {
     graph.addNode(100, 100);
