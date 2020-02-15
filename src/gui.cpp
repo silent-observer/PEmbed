@@ -135,6 +135,10 @@ void Gui::handleMouseEvent(sf::Event event) {
                 int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
                 if (id) {
                     graph.removeNode(id);
+                } else {
+                    Edge e = graph.findEdge(event.mouseButton.x, event.mouseButton.y);
+                    if (e.id1)
+                        graph.removeEdge(e.id1, e.id2);
                 }
                 break;
             }

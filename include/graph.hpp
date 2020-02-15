@@ -4,7 +4,7 @@
 #include <map>
 
 const double NODE_RADIUS = 5;
-const double EDGE_TOLERANCE = 2;
+const double EDGE_TOLERANCE = 3;
 
 struct Edge {
     int id1, id2;
