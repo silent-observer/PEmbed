@@ -14,7 +14,7 @@ TextureBank::TextureBank() {
     }
 }
 
-Gui::Gui() : grabbedNode(0) {
+Gui::Gui() : grabbedNode(0), currentTool(Tool::Pan) {
     graph.addNode(100, 100);
     graph.addNode(200, 100);
     graph.addNode(100, 200);
@@ -48,7 +48,7 @@ static void drawEdge(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f 
     }
 }
 
-void Gui::draw(sf::RenderWindow& window) {
+static void drawGraph(sf::RenderWindow& window, Graph& graph) {
     sf::CircleShape nodeShape(NODE_RADIUS);
     nodeShape.setFillColor(sf::Color::Black);
     nodeShape.setOrigin(NODE_RADIUS, NODE_RADIUS);
@@ -66,6 +66,48 @@ void Gui::draw(sf::RenderWindow& window) {
         window.draw(nodeShape);
     }
 }
+const float BUTTON_SIZE = 30;
+const float BUTTON_OFFSET = 30;
+
+static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool currentTool) {
+    sf::RectangleShape rect(sf::Vector2f(BUTTON_SIZE, BUTTON_SIZE));
+    rect.setOrigin(BUTTON_SIZE/2, BUTTON_SIZE/2);
+    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineThickness(2);
+    for (int i = 0; i < 4; i++) {
+        rect.setPosition(sf::Vector2f(BUTTON_OFFSET + i*BUTTON_SIZE, BUTTON_OFFSET));
+        window.draw(rect);
+    }
+
+    rect.setPosition(sf::Vector2f(BUTTON_OFFSET + (int)currentTool*BUTTON_SIZE, BUTTON_OFFSET));
+    rect.setOutlineColor(sf::Color::Red);
+    window.draw(rect);
+
+    sf::Sprite sprite;
+    sprite.setOrigin(13, 12);
+    
+    for (int i = 0; i < 4; i++) {
+        switch (i) {
+            case 0: sprite.setTexture(textures.hand); break;
+            case 1: sprite.setTexture(textures.plus); break;
+            case 2: sprite.setTexture(textures.minus); break;
+            case 3: sprite.setTexture(textures.draw); break;
+        }
+        sprite.setPosition(sf::Vector2f(BUTTON_OFFSET + i*BUTTON_SIZE, BUTTON_OFFSET));
+        window.draw(sprite);
+    }
+}
+
+const sf::IntRect buttonsRect(BUTTON_OFFSET - 0.5*BUTTON_SIZE,
+                              BUTTON_OFFSET - 0.5*BUTTON_SIZE,
+                              4*BUTTON_SIZE,
+                              BUTTON_SIZE);
+
+void Gui::draw(sf::RenderWindow& window) {
+    drawGraph(window, graph);
+    drawButtons(window, textures, currentTool);
+}
+
 
 void Gui::handleMouseEvent(sf::Event event) {
     if (event.type == sf::Event::MouseButtonPressed && 
@@ -83,6 +125,10 @@ void Gui::handleMouseEvent(sf::Event event) {
 void Gui::update(sf::RenderWindow& window) {
     if (grabbedNode) {
         sf::Vector2i pos = sf::Mouse::getPosition(window);
-        graph.moveNode(grabbedNode, pos.x, pos.y);
+        sf::IntRect windowRect(sf::Vector2i(0, 0), (sf::Vector2i)window.getSize());
+        if (buttonsRect.contains(pos) || !windowRect.contains(pos))
+            grabbedNode = 0;
+        else
+            graph.moveNode(grabbedNode, pos.x, pos.y);
     }
 }

@@ -11,11 +11,19 @@ struct TextureBank {
     TextureBank();
 };
 
+enum Tool {
+    Pan,
+    AddNode,
+    RemoveNodeOrEdge,
+    AddEdge
+};
+
 class Gui {
 private:
     Graph graph;
     int grabbedNode;
     TextureBank textures;
+    Tool currentTool;
 public:
     Gui();
     void draw(sf::RenderWindow& window);
