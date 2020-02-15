@@ -33,3 +33,5 @@
 
 .vscode/*
 *.cmake
+*.zip
+/bin/resources
