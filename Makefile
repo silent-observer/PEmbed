@@ -17,6 +17,9 @@ all: $(BDIR)/pembed.exe
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CC) $< -o $@ $(COMPFLAGS) -c
 
+$(ODIR)/graph.o: $(IDIR)/graph.hpp
+$(ODIR)/gui.o: $(IDIR)/graph.hpp $(IDIR)/gui.hpp
+$(ODIR)/main.o: $(IDIR)/graph.hpp $(IDIR)/gui.hpp
 
 $(BDIR)/pembed.exe: $(OBJ)
 	$(CC) $^ -o $@ $(LINKFLAGS) $(LIBS)
