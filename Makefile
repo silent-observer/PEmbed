@@ -9,7 +9,7 @@ LIBS = -L lib -l sfml-system -l sfml-window -l sfml-graphics
 _OBJ = main.o graph.o gui.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-COMPFLAGS = -I $(IDIR) -g -std=c++11 -D _DEBUG -D UNICODE -D _UNICODE
+COMPFLAGS = -I $(IDIR) -g -std=c++11 -O3 -D UNICODE -D _UNICODE
 LINKFLAGS = -g
 
 all: $(BDIR)/pembed.exe
