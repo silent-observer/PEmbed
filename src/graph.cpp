@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
+#include <iostream>
 
 void Graph::addNode(double x, double y) {
     int id = 1;
@@ -107,13 +108,19 @@ void Graph::restorePositions(SavedPositions pos) {
     nodes = pos;
 }
 
-void convertToInterpolated(Graph& g, SavedPositions& pos, double t) {
-    auto in = g.nodes.begin();
-    auto out = pos.begin();
-    while (in != g.nodes.end() && out != pos.begin()) {
-        out->second.x += t * (in->second.x - out->second.x);
-        out->second.y += t * (in->second.y - out->second.y);
-        in++;
-        out++;
+void Graph::makeInterpolated(SavedPositions& pos, double t) {
+    auto a = nodes.begin();
+    auto b = pos.begin();
+    while (a != nodes.end() && b != pos.end()) {
+        a->second.x = b->second.x + t * (a->second.x - b->second.x);
+        a->second.y = b->second.y + t * (a->second.y - b->second.y);
+        a++;
+        b++;
     }
+}
+
+Node Graph::calcInterpolated(int id, SavedPositions& pos, double t) {
+    double x = pos[id].x + t * (nodes[id].x - pos[id].x);
+    double y = pos[id].y + t * (nodes[id].y - pos[id].y);
+    return {x, y};
 }

@@ -36,6 +36,6 @@ public:
 
     SavedPositions savePositions();
     void restorePositions(SavedPositions pos);
+    void makeInterpolated(SavedPositions& pos, double t);
+    Node calcInterpolated(int id, SavedPositions& pos, double t);
 };
-
-void convertToInterpolated(Graph& g, SavedPositions& pos, double t);
