@@ -18,6 +18,8 @@ struct Node {
     Node() : x(0), y(0) {}
 };
 
+using SavedPositions = std::map<int, Node>;
+
 class Graph {
 public:
     std::map<int, Node> nodes;
@@ -35,7 +37,5 @@ public:
     SavedPositions savePositions();
     void restorePositions(SavedPositions pos);
 };
-
-using SavedPositions = std::map<int, Node>;
 
 void convertToInterpolated(Graph& g, SavedPositions& pos, double t);
