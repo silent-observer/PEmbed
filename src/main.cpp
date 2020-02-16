@@ -21,6 +21,10 @@ int main() {
             case sf::Event::MouseButtonReleased:
                 gui.handleMouseEvent(event);
                 break;
+            case sf::Event::Resized: {
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
+            }
             }
         }
         
