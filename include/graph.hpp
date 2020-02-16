@@ -31,4 +31,11 @@ public:
 
     int findNode(double x, double y);
     Edge findEdge(double x, double y);
+
+    SavedPositions savePositions();
+    void restorePositions(SavedPositions pos);
 };
+
+using SavedPositions = std::map<int, Node>;
+
+void convertToInterpolated(Graph& g, SavedPositions& pos, double t);

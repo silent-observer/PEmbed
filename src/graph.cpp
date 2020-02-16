@@ -98,3 +98,22 @@ Edge Graph::findEdge(double x, double y) {
     }
     return {0, 0};
 }
+
+SavedPositions Graph::savePositions() {
+    SavedPositions copy(nodes);
+    return copy;
+}
+void Graph::restorePositions(SavedPositions pos) {
+    nodes = pos;
+}
+
+void convertToInterpolated(Graph& g, SavedPositions& pos, double t) {
+    auto in = g.nodes.begin();
+    auto out = pos.begin();
+    while (in != g.nodes.end() && out != pos.begin()) {
+        out->second.x += t * (in->second.x - out->second.x);
+        out->second.y += t * (in->second.y - out->second.y);
+        in++;
+        out++;
+    }
+}
