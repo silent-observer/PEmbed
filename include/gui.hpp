@@ -26,6 +26,13 @@ private:
     TextureBank textures;
     Tool currentTool;
     int edgeStartNode;
+
+    bool hasSavedPositions;
+    SavedPositions savedPositions;
+    double sliderPos;
+    bool isGrabbingSlider;
+
+    void invalidateSavedPositions();
 public:
     Gui();
     void draw(sf::RenderWindow& window);

@@ -15,7 +15,11 @@ TextureBank::TextureBank() {
     }
 }
 
-Gui::Gui() : grabbedNode(0), currentTool(Tool::Pan), edgeStartNode(0) {
+Gui::Gui() : grabbedNode(0)
+           , currentTool(Tool::Pan)
+           , edgeStartNode(0)
+           , sliderPos(0)
+           , hasSavedPositions(false) {
     graph.addNode(100, 100);
     graph.addNode(200, 100);
     graph.addNode(100, 200);
@@ -49,31 +53,54 @@ static void drawEdge(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f 
     }
 }
 
-static void drawGraph(sf::RenderWindow& window, Graph& graph) {
+static void drawGraph(sf::RenderWindow& window, Graph& graph, 
+        SavedPositions& pos, bool hasSavedPositions, double t) {
     sf::CircleShape nodeShape(NODE_RADIUS);
     nodeShape.setFillColor(sf::Color::Black);
     nodeShape.setOrigin(NODE_RADIUS, NODE_RADIUS);
 
-    for (auto n = graph.nodes.begin(); n != graph.nodes.end(); n++) {
-        sf::Vector2f nodePos(n->second.x, n->second.y);
-        nodeShape.setPosition(nodePos);
-        window.draw(nodeShape);
-    }
-
-    for (auto e = graph.edges.begin(); e != graph.edges.end(); e++) {
-        double x1 = graph.nodes[e->id1].x;
-        double y1 = graph.nodes[e->id1].y;
-        double x2 = graph.nodes[e->id2].x;
-        double y2 = graph.nodes[e->id2].y;
-        sf::Vector2f startPos(x1, y1);
-        sf::Vector2f endPos(x2, y2);
-        drawEdge(window, startPos, endPos);
+    if (!hasSavedPositions) {
+        for (auto n = graph.nodes.begin(); n != graph.nodes.end(); n++) {
+            sf::Vector2f nodePos(n->second.x, n->second.y);
+            nodeShape.setPosition(nodePos);
+            window.draw(nodeShape);
+        }
+        for (auto e = graph.edges.begin(); e != graph.edges.end(); e++) {
+            double x1 = graph.nodes[e->id1].x;
+            double y1 = graph.nodes[e->id1].y;
+            double x2 = graph.nodes[e->id2].x;
+            double y2 = graph.nodes[e->id2].y;
+            sf::Vector2f startPos(x1, y1);
+            sf::Vector2f endPos(x2, y2);
+            drawEdge(window, startPos, endPos);
+        }
+    } else {
+        auto n1 = pos.begin();
+        auto n2 = graph.nodes.begin();
+        while (n1 != pos.end() && n2 != graph.nodes.end()) {
+            sf::Vector2f nodePos(
+                (1 - t) * n1->second.x + t * n2->second.x,
+                (1 - t) * n1->second.y + t * n2->second.y);
+            nodeShape.setPosition(nodePos);
+            window.draw(nodeShape);
+            n1++;
+            n2++;
+        }
+        for (auto e = graph.edges.begin(); e != graph.edges.end(); e++) {
+            Node a = graph.calcInterpolated(e->id1, pos, t);
+            Node b = graph.calcInterpolated(e->id2, pos, t);
+            sf::Vector2f startPos(a.x, a.y);
+            sf::Vector2f endPos(b.x, b.y);
+            drawEdge(window, startPos, endPos);
+        }
     }
 }
 const float BUTTON_SIZE = 30;
 const float BUTTON_OFFSET = 30;
+const float SLIDER_LENGTH = 100;
 
-static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool currentTool) {
+static void drawButtons(sf::RenderWindow& window, TextureBank& textures, 
+        Tool currentTool, bool hasSavedPositions) {
     sf::RectangleShape rect(sf::Vector2f(BUTTON_SIZE, BUTTON_SIZE));
     rect.setOrigin(BUTTON_SIZE/2, BUTTON_SIZE/2);
     rect.setOutlineColor(sf::Color::Black);
@@ -86,6 +113,12 @@ static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool cu
     rect.setPosition(sf::Vector2f(BUTTON_OFFSET + (int)currentTool*BUTTON_SIZE, BUTTON_OFFSET));
     rect.setOutlineColor(sf::Color::Red);
     window.draw(rect);
+
+    if (hasSavedPositions) {
+        rect.setPosition(sf::Vector2f(BUTTON_OFFSET + 4*BUTTON_SIZE, BUTTON_OFFSET));
+        rect.setOutlineColor(sf::Color::Red);
+        window.draw(rect);
+    }
 
     sf::Sprite sprite;
     sprite.setOrigin(13, 12);
@@ -107,10 +140,31 @@ const sf::IntRect buttonsRect(BUTTON_OFFSET - 0.5*BUTTON_SIZE,
                               BUTTON_OFFSET - 0.5*BUTTON_SIZE,
                               5*BUTTON_SIZE,
                               BUTTON_SIZE);
+const sf::IntRect sliderRect(BUTTON_OFFSET + 6*BUTTON_SIZE - 5,
+                             BUTTON_OFFSET - 0.5*BUTTON_SIZE,
+                             SLIDER_LENGTH + 10,
+                             BUTTON_SIZE);
+
+static void drawSlider(sf::RenderWindow& window, double t) {
+    sf::RectangleShape line(sf::Vector2f(SLIDER_LENGTH, 3));
+    line.setFillColor(sf::Color::Black);
+    line.setPosition(sf::Vector2f(BUTTON_OFFSET + 6*BUTTON_SIZE, BUTTON_OFFSET));
+    window.draw(line);
+
+    sf::RectangleShape rect(sf::Vector2f(10, BUTTON_SIZE));
+    rect.setOrigin(5, BUTTON_SIZE/2);
+    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineThickness(2);
+    rect.setFillColor(sf::Color::White);
+    float pos = t * SLIDER_LENGTH;
+    rect.setPosition(sf::Vector2f(BUTTON_OFFSET + 6*BUTTON_SIZE + pos, BUTTON_OFFSET));
+    window.draw(rect);
+}
 
 void Gui::draw(sf::RenderWindow& window) {
-    drawGraph(window, graph);
-    drawButtons(window, textures, currentTool);
+    drawGraph(window, graph, savedPositions, hasSavedPositions, sliderPos);
+    drawButtons(window, textures, currentTool, hasSavedPositions);
+    drawSlider(window, sliderPos);
     if (edgeStartNode) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         sf::Vector2f edgePos(graph.nodes[edgeStartNode].x, graph.nodes[edgeStartNode].y);
@@ -119,6 +173,13 @@ void Gui::draw(sf::RenderWindow& window) {
     }
 }
 
+void Gui::invalidateSavedPositions() {
+    if (hasSavedPositions) {
+        graph.makeInterpolated(savedPositions, sliderPos);
+    }
+    hasSavedPositions = false;
+    sliderPos = 0;
+}
 
 void Gui::handleMouseEvent(sf::Event event) {
     if (event.type == sf::Event::MouseButtonPressed && 
@@ -129,12 +190,28 @@ void Gui::handleMouseEvent(sf::Event event) {
             if (i != 4)
                 currentTool = (Tool)i;
             else {
-                
+                invalidateSavedPositions();
+                hasSavedPositions = true;
+                savedPositions = graph.savePositions();
             }
             edgeStartNode = 0;
+        } else if (sliderRect.contains(event.mouseButton.x, event.mouseButton.y)) {
+            sf::FloatRect sliderHandleRect(
+                sliderRect.left + SLIDER_LENGTH * sliderPos,
+                sliderRect.top,
+                10,
+                sliderRect.height);
+            if (sliderHandleRect.contains(event.mouseButton.x, event.mouseButton.y)) {
+                isGrabbingSlider = true;
+            }
         }
         else switch(currentTool) {
             case Tool::Pan: {
+                if (hasSavedPositions) {
+                    graph.makeInterpolated(savedPositions, sliderPos);
+                    sliderPos = 1;
+                } else
+                    sliderPos = 0;
                 int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
                 if (id) {
                     grabbedNode = id;
@@ -143,19 +220,23 @@ void Gui::handleMouseEvent(sf::Event event) {
             }
             case Tool::AddNode:
                 graph.addNode(event.mouseButton.x, event.mouseButton.y);
+                invalidateSavedPositions();
                 break;
             case Tool::RemoveNodeOrEdge: {
+                invalidateSavedPositions();
                 int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
                 if (id) {
                     graph.removeNode(id);
                 } else {
                     Edge e = graph.findEdge(event.mouseButton.x, event.mouseButton.y);
-                    if (e.id1)
+                    if (e.id1) {
                         graph.removeEdge(e.id1, e.id2);
+                    }
                 }
                 break;
             }
             case Tool::AddEdge: {
+                invalidateSavedPositions();
                 int id = graph.findNode(event.mouseButton.x, event.mouseButton.y);
                 if (id) {
                     if (edgeStartNode == 0)
@@ -172,8 +253,8 @@ void Gui::handleMouseEvent(sf::Event event) {
         }
     } else if (event.type == sf::Event::MouseButtonReleased &&
             event.mouseButton.button == sf::Mouse::Left) {
-        if (currentTool == Tool::Pan)
-            grabbedNode = 0;
+        grabbedNode = 0;
+        isGrabbingSlider = false;
     }
 }
 
@@ -185,5 +266,13 @@ void Gui::update(sf::RenderWindow& window) {
             grabbedNode = 0;
         else
             graph.moveNode(grabbedNode, pos.x, pos.y);
+    }
+    if (isGrabbingSlider) {
+        sf::Vector2i pos = sf::Mouse::getPosition(window);
+        if (pos.x < BUTTON_OFFSET + 6*BUTTON_SIZE) sliderPos = 0;
+        else if (pos.x > BUTTON_OFFSET + 6*BUTTON_SIZE + SLIDER_LENGTH) sliderPos = 1;
+        else {
+            sliderPos = (pos.x - BUTTON_OFFSET - 6*BUTTON_SIZE)/SLIDER_LENGTH;
+        }
     }
 }
