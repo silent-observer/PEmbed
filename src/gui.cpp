@@ -8,7 +8,8 @@ TextureBank::TextureBank() {
     bool b2 = plus.loadFromFile("resources/plus.png");
     bool b3 = minus.loadFromFile("resources/minus.png");
     bool b4 = draw.loadFromFile("resources/draw.png");
-    if (!b1 || !b2 || !b3 || !b4) {
+    bool b5 = save.loadFromFile("resources/save.png");
+    if (!b1 || !b2 || !b3 || !b4 || !b5) {
         MessageBoxA(NULL, "Couldn't load resources!", "Error", MB_ICONERROR | MB_OK);
         exit(1);
     }
@@ -77,7 +78,7 @@ static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool cu
     rect.setOrigin(BUTTON_SIZE/2, BUTTON_SIZE/2);
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(2);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         rect.setPosition(sf::Vector2f(BUTTON_OFFSET + i*BUTTON_SIZE, BUTTON_OFFSET));
         window.draw(rect);
     }
@@ -89,12 +90,13 @@ static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool cu
     sf::Sprite sprite;
     sprite.setOrigin(13, 12);
     
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         switch (i) {
             case 0: sprite.setTexture(textures.hand); break;
             case 1: sprite.setTexture(textures.plus); break;
             case 2: sprite.setTexture(textures.minus); break;
             case 3: sprite.setTexture(textures.draw); break;
+            case 4: sprite.setTexture(textures.save); break;
         }
         sprite.setPosition(sf::Vector2f(BUTTON_OFFSET + i*BUTTON_SIZE, BUTTON_OFFSET));
         window.draw(sprite);
@@ -103,7 +105,7 @@ static void drawButtons(sf::RenderWindow& window, TextureBank& textures, Tool cu
 
 const sf::IntRect buttonsRect(BUTTON_OFFSET - 0.5*BUTTON_SIZE,
                               BUTTON_OFFSET - 0.5*BUTTON_SIZE,
-                              4*BUTTON_SIZE,
+                              5*BUTTON_SIZE,
                               BUTTON_SIZE);
 
 void Gui::draw(sf::RenderWindow& window) {
@@ -124,7 +126,11 @@ void Gui::handleMouseEvent(sf::Event event) {
         if (buttonsRect.contains(event.mouseButton.x, event.mouseButton.y)) {
             double x = (event.mouseButton.x - BUTTON_OFFSET)/BUTTON_SIZE;
             int i = round(x);
-            currentTool = (Tool)i;
+            if (i != 4)
+                currentTool = (Tool)i;
+            else {
+                
+            }
             edgeStartNode = 0;
         }
         else switch(currentTool) {

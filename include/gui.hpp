@@ -8,6 +8,7 @@ struct TextureBank {
     sf::Texture plus;
     sf::Texture minus;
     sf::Texture draw;
+    sf::Texture save;
     TextureBank();
 };
 
